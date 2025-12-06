@@ -1,0 +1,29 @@
+﻿@page "/services"
+@inject ApplicationDbContext Db
+<PageTitle>Services</PageTitle>
+@using FargoSpaWellness.Models
+@using FargoSpaWellness.Data
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
+@inject ApplicationDbContext Db
+@inject AuthenticationStateProvider Auth
+@inject NavigationManager Nav
+
+<h2 class="text-center my-4 text-success">Our Services</h2>
+
+<div class="row">
+    @foreach (var service in Db.Services.Where(s => s.IsActive))
+    {
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-success">@service.Name</h5>
+                    <p class="card-text">@service.Description</p>
+                    <p><strong>Duration:</strong> @service.DurationMinutes min | <strong>Price:</strong> $@service.Price</p>
+                    <a href="book/@service.Id" class="btn btn-success">Book Now</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

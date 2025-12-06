@@ -1,0 +1,54 @@
+﻿@page "/testimonials"
+@inject ApplicationDbContext Db
+<PageTitle>Testimonials</PageTitle>
+@using FargoSpaWellness.Models
+@using FargoSpaWellness.Data
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
+@inject ApplicationDbContext Db
+@inject AuthenticationStateProvider Auth
+@inject NavigationManager Nav
+
+<h2 class="text-center my-4 text-success">What Our Clients Say</h2>
+
+@foreach (var t in Db.Testimonials.Where(t => t.IsApproved))
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5>@t.AuthorName <small class="text-muted">(@t.DatePosted.ToShortDateString())</small></h5>
+            <p>@t.Content</p>
+            <span>Rating: @string.Concat(Enumerable.Repeat("★", t.Rating))</span>
+        </div>
+    </div>
+}
+
+<h4 class="mt-5">Leave a Review</h4>
+<EditForm Model="newTestimonial" OnValidSubmit="SubmitTestimonial">
+    <InputText @bind-Value="newTestimonial.AuthorName" placeholder="Your name" class="form-control mb-2" />
+    <InputTextArea @bind-Value="newTestimonial.Content" placeholder="Your experience..." class="form-control mb-2" />
+    <InputNumber @bind-Value="newTestimonial.Rating" min="1" max="5" class="form-control mb-2" />
+    <button type="submit" class="btn btn-success">Submit Review</button>
+</EditForm>
+
+@if (submitted)
+{
+    <div class="alert alert-info mt-3">Thank you! Your review is pending approval.</div>
+}
+
+@code {
+    private List<Testimonial> testimonials = new();
+    private Testimonial newTestimonial = new() { Rating = 5 };
+    private bool submitted = false;
+
+    protected override void OnInitialized() => testimonials = Db.Testimonials.Where(t => t.IsApproved).ToList();
+
+    private async Task SubmitTestimonial()
+    {
+        newTestimonial.DatePosted = DateTime.Now;
+        Db.Testimonials.Add(newTestimonial);
+        await Db.SaveChangesAsync();
+        submitted = true;
+        newTestimonial = new() { Rating = 5 };
+    }
+}

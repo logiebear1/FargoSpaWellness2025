@@ -1,0 +1,37 @@
+﻿@page "/admin/manageservices"
+@using FargoSpaWellness.Models
+@using FargoSpaWellness.Data
+@attribute [Authorize(Roles = "Admin")]
+@inject ApplicationDbContext Db
+<PageTitle>Manage Services</PageTitle>
+@using Microsoft.AspNetCore.Authorization
+
+<h3>Manage Services</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr><th>Name</th><th>Price</th><th>Duration</th><th>Active</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Db.Services.ToList())
+        {
+            <tr>
+                <td>@s.Name</td>
+                <td>$@s.Price</td>
+                <td>@s.DurationMinutes min</td>
+                <td>@(s.IsActive ? "Yes" : "No")</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" @onclick="() => ToggleActive(s)">Toggle Active</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private async Task ToggleActive(SpaService s)
+    {
+        s.IsActive = !s.IsActive;
+        await Db.SaveChangesAsync();
+    }
+}

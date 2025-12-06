@@ -1,0 +1,101 @@
+﻿@page "/book"
+@page "/book/{ServiceId:int}"
+@inject ApplicationDbContext Db
+@inject AuthenticationStateProvider Auth
+@inject NavigationManager Nav
+@using FargoSpaWellness.Models
+@using FargoSpaWellness.Data
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
+@inject ApplicationDbContext Db
+@inject AuthenticationStateProvider Auth
+@inject NavigationManager Nav
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using Microsoft.AspNetCore.Components.Authorization
+
+@if (selectedService == null && ServiceId is null)
+{
+    <div class="text-center py-5">
+        <h3>Please select a service first</h3>
+        <a href="services" class="btn btn-primary btn-lg">Browse Services</a>
+    </div>
+}
+else
+{
+    <h3 class="mb-4">Book: @selectedService?.Name</h3>
+
+    <EditForm Model="booking" OnValidSubmit="SubmitBooking">
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label class="form-label"><strong>Date & Time</strong></label>
+            <InputDate @bind-Value="booking.AppointmentDateTime" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Notes (optional)</label>
+            <InputTextArea @bind-Value="booking.Notes" class="form-control" rows="3" />
+        </div>
+
+        <button type="submit" class="btn btn-success btn-lg">Confirm Booking</button>
+    </EditForm>
+
+    @if (showSuccess)
+    {
+        <div class="alert alert-success mt-4">
+            <strong>Booking confirmed!</strong> We'll see you soon at Fargo Spa & Wellness.
+        </div>
+    }
+}
+
+@code {
+    [Parameter] public int? ServiceId { get; set; }
+    private SpaService? selectedService;
+    private Booking booking = new();
+    private bool showSuccess = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var authState = await Auth.GetAuthenticationStateAsync();
+
+            if (!authState.User.Identity?.IsAuthenticated ?? true)
+            {
+                var returnUrl = Uri.EscapeDataString(Nav.Uri);
+                Nav.NavigateTo($"Identity/Account/Login?returnUrl={returnUrl}", forceLoad: true);
+                return;
+            }
+
+            if (ServiceId != null)
+            {
+                selectedService = await Db.Services.FindAsync(ServiceId);
+                if (selectedService != null)
+                    booking.ServiceId = selectedService.Id;
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task SubmitBooking()
+    {
+        var authState = await Auth.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (!user.Identity!.IsAuthenticated)
+        {
+            Nav.NavigateTo("Identity/Account/Login?returnUrl=" + Uri.EscapeDataString(Nav.Uri));
+            return;
+        }
+
+        booking.UserId = user.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        booking.AppointmentDateTime = booking.AppointmentDateTime.Date.AddHours(12); // default noon
+        Db.Bookings.Add(booking);
+        await Db.SaveChangesAsync();
+
+        showSuccess = true;
+        booking = new Booking { ServiceId = selectedService!.Id };
+    }
+}

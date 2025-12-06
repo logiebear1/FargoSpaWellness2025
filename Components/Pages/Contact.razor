@@ -1,0 +1,43 @@
+﻿@page "/contact"
+<PageTitle>Contact Us</PageTitle>
+@using FargoSpaWellness.Models
+@using FargoSpaWellness.Data
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
+@inject ApplicationDbContext Db
+@inject AuthenticationStateProvider Auth
+@inject NavigationManager Nav
+
+<h2 class="text-center my-4 text-success">Get in Touch</h2>
+<div class="row">
+    <div class="col-md-6">
+        <p>Email: info@fargospa.com</p>
+        <p>Phone: (701) 555-0123</p>
+        <p>Address: 123 Wellness Way, Fargo, ND</p>
+    </div>
+    <div class="col-md-6">
+        <EditForm Model="message" OnValidSubmit="Send">
+            <InputText @bind-Value="message.Name" placeholder="Name" class="form-control mb-2" />
+            <InputText @bind-Value="message.Email" placeholder="Email" class="form-control mb-2" />
+            <InputTextArea @bind-Value="message.Message" placeholder="Message" class="form-control mb-2" />
+            <button type="submit" class="btn btn-success">Send</button>
+        </EditForm>
+        @if (sent)
+        {
+            <div class="alert alert-success mt-3">Message sent!</div>
+        }
+    </div>
+</div>
+
+@code {
+    private ContactMessage message = new();
+    private bool sent = false;
+    private async Task Send()
+    {
+        Db.ContactMessages.Add(message);
+        await Db.SaveChangesAsync();
+        sent = true;
+        message = new();
+    }
+}

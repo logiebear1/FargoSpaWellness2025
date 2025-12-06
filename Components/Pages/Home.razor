@@ -1,0 +1,16 @@
+﻿@page "/"
+<PageTitle>Home - Fargo Spa & Wellness</PageTitle>
+@using FargoSpaWellness.Models
+@using FargoSpaWellness.Data
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
+@inject ApplicationDbContext Db
+@inject AuthenticationStateProvider Auth
+@inject NavigationManager Nav
+
+<div class="text-center py-5 bg-light rounded">
+    <h1 class="display-4 text-success">Welcome to Fargo Spa & Wellness</h1>
+    <p class="lead">Relax. Rejuvenate. Renew.</p>
+    <a class="btn btn-success btn-lg" href="services">View Services</a>
+</div>

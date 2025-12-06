@@ -1,0 +1,40 @@
+﻿@page "/admin"
+@using FargoSpaWellness.Models
+@using FargoSpaWellness.Data
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@inject ApplicationDbContext Db
+<PageTitle>Admin Dashboard</PageTitle>
+@using Microsoft.AspNetCore.Authorization
+
+<div class="text-center py-5">
+    <h1 class="display-5 text-success">Admin Dashboard</h1>
+    <p class="lead">Welcome, Admin!</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card text-center shadow">
+            <div class="card-body">
+                <h5 class="card-title">Manage Services</h5>
+                <a href="admin/manageservices" class="btn btn-primary">Go →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center shadow">
+            <div class="card-body">
+                <h5 class="card-title">Approve Testimonials</h5>
+                <a href="admin/managetestimonials" class="btn btn-primary">Go →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center shadow">
+            <div class="card-body">
+                <h5 class="card-title">View All Bookings</h5>
+                <a href="admin/viewbookings" class="btn btn-primary">Go →</a>
+            </div>
+        </div>
+    </div>
+</div>

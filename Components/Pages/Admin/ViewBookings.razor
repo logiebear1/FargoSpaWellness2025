@@ -1,0 +1,27 @@
+﻿@page "/admin/viewbookings"
+@using FargoSpaWellness.Models
+@using FargoSpaWellness.Data
+@attribute [Authorize(Roles = "Admin")]
+@inject ApplicationDbContext Db
+<PageTitle>All Bookings</PageTitle>
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+
+<h3>All Bookings</h3>
+
+<table class="table">
+    <thead>
+        <tr><th>User</th><th>Service</th><th>Date</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var b in Db.Bookings.Include(b => b.Service).Include(b => b.User).OrderByDescending(b => b.CreatedAt))
+        {
+            <tr>
+                <td>@b.User?.Email</td>
+                <td>@b.Service?.Name</td>
+                <td>@b.AppointmentDateTime.ToString("g")</td>
+                <td>@b.Notes</td>
+            </tr>
+        }
+    </tbody>
+</table>

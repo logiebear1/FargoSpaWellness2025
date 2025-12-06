@@ -1,0 +1,44 @@
+﻿@page "/admin/managetestimonials"
+@using FargoSpaWellness.Models
+@using FargoSpaWellness.Data
+@attribute [Authorize(Roles = "Admin")]
+@inject ApplicationDbContext Db
+<PageTitle>Approve Testimonials</PageTitle>
+@using Microsoft.AspNetCore.Authorization
+
+<h3>Pending Testimonials (@pending.Count)</h3>
+
+@foreach (var t in pending)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <p><strong>@t.AuthorName</strong> (@t.DatePosted.ToShortDateString())</p>
+            <p>@t.Content</p>
+            <button class="btn btn-success btn-sm" @onclick="() => Approve(t)">Approve</button>
+            <button class="btn btn-danger btn-sm ms-2" @onclick="() => Delete(t)">Delete</button>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Testimonial> pending = new();
+
+    protected override void OnInitialized()
+    {
+        pending = Db.Testimonials.Where(t => !t.IsApproved).ToList();
+    }
+
+    private async Task Approve(Testimonial t)
+    {
+        t.IsApproved = true;
+        await Db.SaveChangesAsync();
+        pending.Remove(t);
+    }
+
+    private async Task Delete(Testimonial t)
+    {
+        Db.Testimonials.Remove(t);
+        await Db.SaveChangesAsync();
+        pending.Remove(t);
+    }
+}
