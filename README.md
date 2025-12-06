@@ -27,3 +27,12 @@ GitHub Repo: https://github.com/logiebear1/FargoSpaWellness2025
 - Regular users can register normally
 
 ## Project Structure Highlights
+/Components
+/Pages
+/Admin          ← Admin dashboard & management pages
+Book.razor       ← Booking flow with login redirect
+Services.razor   ← Service catalog
+/Data                ← DbContext & SeedData
+/Models              ← SpaService, Booking, Testimonial, etc.
+wwwroot              ← (you can drop images here later)
+
